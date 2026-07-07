@@ -1,0 +1,5 @@
+apiVersion: v2
+name: team-addons
+description: Team-owned app-of-apps chart rendering leaf Argo CD Applications for team add-ons
+type: application
+version: 0.1.0

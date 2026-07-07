@@ -1,0 +1,32 @@
+# Platform-tier add-on toggles. See data-model.md § Add-on Toggle and
+# contracts/child-to-leaf-application.md for the field contract each entry
+# here must satisfy, and templates/addons/*.yaml (T019, T020) for exactly
+# how each field is consumed.
+customAddons:
+  platform:
+    ingressNginx:
+      # Whether the leaf Application renders (templates/addons/ingress-nginx.yaml).
+      enable: true
+      # Target namespace for the ingress-nginx controller Deployment/Service.
+      namespace: ingress-nginx
+      # Path to the wrapper chart under default-add-ons/ (mirrors the
+      # add-on-path helper's convention: default-add-ons/<addon>).
+      chartPath: default-add-ons/ingress-nginx
+      # Inline overrides layered on top of default-add-ons/ingress-nginx's
+      # own values.yaml at the leaf Application level; none needed for the
+      # platform default configuration.
+      values: {}
+    postgresql:
+      # Whether the leaf Application renders (templates/addons/postgresql.yaml).
+      enable: true
+      # Target namespace for the platform Postgres instance. MUST differ
+      # from the team tier's namespace (data-model.md § Add-on Toggle
+      # validation rules; FR-005/FR-006 isolation).
+      namespace: platform
+      # Path to the wrapper chart under default-add-ons/.
+      chartPath: default-add-ons/postgresql
+      # Inline overrides layered on top of default-add-ons/postgresql's own
+      # values.yaml (which already sets metrics.enabled: false for the
+      # platform tier); none needed here for the platform default
+      # configuration.
+      values: {}

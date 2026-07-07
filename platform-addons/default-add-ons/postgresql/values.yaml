@@ -1,0 +1,20 @@
+---
+# Platform-tier defaults passed through to the bitnami/postgresql
+# dependency declared in Chart.yaml. Overrides from
+# customAddons.platform.postgresql.values (see contracts/child-to-leaf-application.md)
+# are deep-merged on top of these at the leaf Application level.
+postgresql:
+  auth:
+    username: platform
+    database: platform
+    existingSecret: ""
+  architecture: standalone
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+  # Platform tier runs without the metrics sidecar/ServiceMonitor by
+  # default (data-model.md § Wrapper Chart Dependency); the team tier
+  # overlay flips this on.
+  metrics:
+    enabled: false

@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # Same single-repo placeholder as chart/values.yaml's `apps` registry
+    # (see data-model.md § Registered App) - replace with the real Git
+    # remote URL before pointing Argo CD at a non-local repo.
+    repoURL: https://example.com/local-single-repo-placeholder.git
+    path: chart
+    targetRevision: HEAD
+    helm:
+      # Sample clusterName/dns/environment matching chart/values-local.yaml
+      # and chart/values-kind-argocd-playground.yaml (see quickstart.md
+      # step 1's `helm template` invocation), so chart.mergedValues
+      # (chart/templates/_helpers.tpl) resolves the same overlay chain here
+      # that gets exercised by the local smoke test before Argo CD sync.
+      valuesObject:
+        clusterName: kind-argocd-playground
+        account: "000000000000"
+        region: local
+        dns: example.com
+        environment: local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

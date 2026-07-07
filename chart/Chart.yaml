@@ -1,0 +1,5 @@
+apiVersion: v2
+name: chart
+description: Parent app-of-apps chart that renders one Argo CD Application per registered child chart
+type: application
+version: 0.1.0

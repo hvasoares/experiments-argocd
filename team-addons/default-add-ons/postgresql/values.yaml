@@ -1,0 +1,10 @@
+# Team-tier overlay for the bitnami/postgresql dependency pinned in Chart.yaml.
+# Isolation rule (data-model.md § Wrapper Chart Dependency / Add-on Toggle):
+# this instance MUST stay in its own "team" namespace and MUST NOT share a
+# Service/Secret with platform-addons/default-add-ons/postgresql, whose
+# metrics.enabled defaults to false.
+namespace: team
+
+postgresql:
+  metrics:
+    enabled: true

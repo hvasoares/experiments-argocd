@@ -1,0 +1,17 @@
+# Cluster overlay: loaded by the `chart.mergedValues` helper
+# (chart/templates/_helpers.tpl) whenever the caller sets
+# `.Values.clusterName: kind-argocd-playground` (e.g.
+# bootstrap/root-application.yaml, or
+# `helm template chart --set clusterName=kind-argocd-playground`).
+#
+# Merge precedence (base -> env -> cluster, see chart.mergedValues):
+#   1. chart/values.yaml            (base, lowest precedence)
+#   2. values-<environment>.yaml    (env overlay, e.g. values-local.yaml)
+#   3. values-<clusterName>.yaml    (this file, highest precedence)
+#
+# This is the local `kind` cluster used for playground/smoke-testing, so it
+# shares the "local" environment overlay's account/region/dns/environment
+# defaults (see values-local.yaml). clusterName is restated here so this
+# overlay resolves standalone (per data-model.md "Cluster Context Values")
+# even if a future cluster overlay needs to diverge from those defaults.
+clusterName: kind-argocd-playground

@@ -1,0 +1,19 @@
+# Registered child app-of-apps charts, keyed by app name.
+# See data-model.md § Registered App for the field contract and
+# contracts/parent-to-child-values.md for what gets passed down to each child.
+apps:
+  platform-addons:
+    enabled: true
+    # Placeholder: this experiment runs entirely out of one local repo, so
+    # every child chart is a sibling path in the same Git remote. Replace
+    # with the real Git URL (e.g. git@github.com:<org>/<repo>.git) before
+    # pointing Argo CD at a non-local remote.
+    repoURL: https://example.com/local-single-repo-placeholder.git
+    path: platform-addons
+    targetRevision: HEAD
+  team-addons:
+    enabled: true
+    # Placeholder: same single-repo caveat as platform-addons above.
+    repoURL: https://example.com/local-single-repo-placeholder.git
+    path: team-addons
+    targetRevision: HEAD

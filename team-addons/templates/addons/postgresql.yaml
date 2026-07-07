@@ -1,0 +1,44 @@
+{{/*
+postgresql.yaml
+----------------
+Leaf Argo CD Application for the team-tier PostgreSQL instance, sourced
+from the default-add-ons/postgresql wrapper chart (T023), which pins the
+same bitnami/postgresql dependency version as the platform tier but keeps
+its own "team" namespace and overlay (metrics.enabled: true).
+
+Gated by .Values.customAddons.team.postgresql.enable (data-model.md
+§ Add-on Toggle) so this Application only renders when explicitly turned
+on. `default dict` guards every lookup so this chart still
+`helm lint`/`helm template`s standalone before values.yaml's
+customAddons.team.postgresql block has been populated (T027), per
+Constitution Principle II.
+
+Fields follow contracts/child-to-leaf-application.md § Producer exactly:
+metadata.name, spec.destination.namespace, spec.source.path, and
+spec.source.helm.values are all sourced from the toggle entry, falling
+back to the team-addons.add-on-path helper (T009) for the wrapper chart
+path and to the "team" namespace called out in this task when no override
+is set.
+*/}}
+{{- $pg := .Values.customAddons.team.postgresql | default dict }}
+{{- if $pg.enable }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql-team
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $pg.namespace | default "team" }}
+  source:
+    repoURL: {{ $pg.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    path: {{ $pg.chartPath | default (include "team-addons.add-on-path" (dict "root" $ "name" "postgresql")) }}
+    targetRevision: {{ $pg.targetRevision | default "HEAD" }}
+    helm:
+      values: |-
+        {{- toYaml ($pg.values | default dict) | nindent 8 }}
+  syncPolicy:
+    automated: {}
+{{- end }}

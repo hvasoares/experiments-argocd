@@ -1,0 +1,22 @@
+# Platform defaults for the ingress-nginx dependency.
+# Keys here are passed straight through to the upstream ingress-nginx/ingress-nginx
+# chart (pinned in Chart.yaml), nested under the dependency name per Helm
+# subchart conventions.
+ingress-nginx:
+  controller:
+    replicaCount: 1
+    ingressClassResource:
+      name: nginx
+      default: true
+    service:
+      type: ClusterIP
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+    metrics:
+      enabled: false
+    admissionWebhooks:
+      enabled: true

@@ -1,0 +1,54 @@
+{{/*
+applications.yaml
+------------------
+Renders one Argo CD Application per entry in .Values.apps (see
+data-model.md § Registered App), pointing at that entry's child
+app-of-apps chart (platform-addons or team-addons).
+
+Each Application's spec.source.helm.valuesObject is built per
+contracts/parent-to-child-values.md as the deep-merge of:
+  1. Cluster Context Values (clusterName, account, region, dns,
+     environment) - resolved fresh per app via the chart.mergedValues
+     helper (base -> env -> cluster overlay), so overlay state never
+     leaks between apps entries.
+  2. That app's own `values` override block (highest precedence).
+
+Only entries with `enabled: true` render (data-model.md § Registered App
+validation rules - `enabled` defaults to false so new entries never
+auto-deploy).
+*/}}
+{{- range $name, $app := .Values.apps }}
+{{- if $app.enabled }}
+{{- $merged := include "chart.mergedValues" $ | fromYaml }}
+{{- $clusterContext := dict
+      "clusterName" $merged.clusterName
+      "account" $merged.account
+      "region" $merged.region
+      "dns" $merged.dns
+      "environment" $merged.environment
+}}
+{{- $childValues := mergeOverwrite $clusterContext ($app.values | default dict) }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $name }}
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: {{ $app.repoURL }}
+    path: {{ $app.path }}
+    targetRevision: {{ $app.targetRevision }}
+    helm:
+      valuesObject:
+        {{- toYaml $childValues | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}
+{{- end }}

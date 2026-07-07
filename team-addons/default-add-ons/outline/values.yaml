@@ -1,0 +1,57 @@
+# Team-tier wrapper around the community-charts/outline dependency pinned in
+# Chart.yaml. Keys here are passed straight through to that upstream chart,
+# nested under the dependency name per Helm subchart conventions (same
+# pattern as platform-addons/default-add-ons/ingress-nginx/values.yaml).
+# Overrides from customAddons.team.outline.values (see
+# contracts/child-to-leaf-application.md) are deep-merged on top of these at
+# the leaf Application level.
+namespace: team
+
+outline:
+  # Ingress host template: `outline.<clusterName>.<dns>` per data-model.md
+  # § Cluster Context Values. This static default lets the chart
+  # lint/template standalone (Constitution Principle II); the real
+  # per-cluster host is substituted into customAddons.team.outline.values by
+  # team-addons/templates/addons/outline.yaml once clusterName/dns flow down
+  # from the parent chart.
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: outline.local.example.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+
+  # Use the team's own PostgreSQL instance (postgresql-team) — never the
+  # chart's bundled subchart, and never platform-addons' instance
+  # (contracts/child-to-leaf-application.md § Isolation contract).
+  postgresql:
+    enabled: false
+
+  # The outline chart assembles its DATABASE_URL env var from these fields
+  # (postgresql://<username>:<password>@<host>:<port>/<database>). `host`
+  # MUST resolve to team-addons' own postgresql-team Service DNS name, never
+  # postgresql-platform's (isolation contract, spec FR-005).
+  externalPostgresql:
+    host: postgresql-team.team.svc.cluster.local
+    port: 5432
+    database: outline
+    username: postgres
+    # Assumes team-addons/default-add-ons/postgresql (T023) leaves the
+    # bitnami/postgresql admin user enabled, whose password Secret always
+    # carries the postgres-password key regardless of any custom
+    # auth.username/auth.database overlay. Revisit alongside T027
+    # (customAddons.team.* population) if T023's auth block changes.
+    existingSecret: postgresql-team
+    passwordSecretKey: postgres-password
+
+  # Outline requires Redis for websockets/rate limiting. No standalone Redis
+  # leaf Application is in scope for this experiment, so run the chart's own
+  # bundled, non-persistent Redis instance instead of an external one.
+  redis:
+    enabled: true
+    master:
+      persistence:
+        enabled: false

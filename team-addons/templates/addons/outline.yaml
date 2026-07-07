@@ -1,0 +1,49 @@
+{{/*
+outline.yaml
+------------
+Leaf Argo CD Application for the team-owned Outline knowledge base,
+sourced from the default-add-ons/outline wrapper chart (T024), which
+itself pins the community-charts/outline dependency.
+
+Gated by .Values.customAddons.team.outline.enable (data-model.md § Add-on
+Toggle) so this Application only renders when explicitly turned on.
+`default dict` guards every lookup so this chart still
+`helm lint`/`helm template`s standalone before values.yaml's
+customAddons.team.outline block has been populated (T027), per
+Constitution Principle II.
+
+Fields follow contracts/child-to-leaf-application.md § Producer exactly:
+metadata.name, spec.destination.namespace, spec.source.path, and
+spec.source.helm.values are all sourced from the toggle entry, falling
+back to the team-addons.add-on-path helper (T009) for the wrapper chart
+path and to the "team" namespace when no override is set.
+
+Isolation contract (contracts/child-to-leaf-application.md § Isolation
+contract, spec FR-005): default-add-ons/outline/values.yaml (T024) wires
+externalPostgresql.host to postgresql-team.team.svc.cluster.local, which
+the upstream chart assembles into DATABASE_URL at deploy time. Any inline
+override under customAddons.team.outline.values MUST NOT repoint that host
+at postgresql-platform.
+*/}}
+{{- $outline := .Values.customAddons.team.outline | default dict }}
+{{- if $outline.enable }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: outline
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $outline.namespace | default "team" }}
+  source:
+    repoURL: {{ .Values.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    path: {{ $outline.chartPath | default (include "team-addons.add-on-path" (dict "root" $ "name" "outline")) }}
+    targetRevision: {{ $outline.targetRevision | default "HEAD" }}
+    helm:
+      values: |-
+        {{- toYaml ($outline.values | default dict) | nindent 8 }}
+  syncPolicy:
+    automated: {}
+{{- end }}

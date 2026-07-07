@@ -1,0 +1,10 @@
+apiVersion: v2
+name: outline
+description: Wrapper chart pinning the community-charts/outline chart for the team-owned Outline knowledge base
+type: application
+version: 0.1.0
+appVersion: "1.8.1"
+dependencies:
+  - name: outline
+    version: "0.9.0"
+    repository: "https://community-charts.github.io/helm-charts"

@@ -1,0 +1,35 @@
+# Team-tier add-on toggles. See data-model.md § Add-on Toggle and
+# contracts/child-to-leaf-application.md for the field contract each entry
+# here must satisfy, and templates/addons/*.yaml (T025, T026) for exactly
+# how each field is consumed.
+customAddons:
+  team:
+    postgresql:
+      # Whether the leaf Application renders (templates/addons/postgresql.yaml).
+      enable: true
+      # Target namespace for the team Postgres instance. MUST differ from
+      # the platform tier's namespace (data-model.md § Add-on Toggle
+      # validation rules; FR-005/FR-006 isolation) — matches
+      # default-add-ons/postgresql/values.yaml's own "team" namespace.
+      namespace: team
+      # Path to the wrapper chart under default-add-ons/ (mirrors the
+      # team-addons.add-on-path helper's convention: default-add-ons/<addon>).
+      chartPath: default-add-ons/postgresql
+      # Inline overrides layered on top of default-add-ons/postgresql's own
+      # values.yaml (which already sets metrics.enabled: true for the team
+      # tier); none needed here for the team default configuration.
+      values: {}
+    outline:
+      # Whether the leaf Application renders (templates/addons/outline.yaml).
+      enable: true
+      # Target namespace for the Outline knowledge base. Same tenant
+      # namespace as postgresql-team so Outline can reach it in-cluster.
+      namespace: team
+      # Path to the wrapper chart under default-add-ons/.
+      chartPath: default-add-ons/outline
+      # Inline overrides layered on top of default-add-ons/outline's own
+      # values.yaml (ingress host, externalPostgresql.*, redis.*); none
+      # needed here for the team default configuration. MUST NOT repoint
+      # externalPostgresql.host at postgresql-platform (isolation contract,
+      # contracts/child-to-leaf-application.md § Isolation contract).
+      values: {}

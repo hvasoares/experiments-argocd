@@ -1,0 +1,37 @@
+{{/*
+ingress-nginx.yaml
+-------------------
+Leaf Argo CD Application for the platform's ingress-nginx add-on, per
+contracts/child-to-leaf-application.md § Producer. Rendered only when
+.Values.customAddons.platform.ingressNginx.enable is true (data-model.md
+§ Add-on Toggle). Guard the lookup with `default dict` so this template
+still lints/templates standalone (Constitution Principle II) before
+customAddons.platform.ingressNginx exists in values.yaml (T021).
+*/}}
+{{- $addon := .Values.customAddons.platform.ingressNginx | default dict }}
+{{- if $addon.enable }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $addon.namespace }}
+  source:
+    # Single-repo experiment (spec Assumptions): mirrors the placeholder
+    # used in chart/values.yaml's apps.*.repoURL. Optional per-addon
+    # override left available via customAddons.platform.ingressNginx.repoURL.
+    repoURL: {{ $addon.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    path: {{ $addon.chartPath | default (include "add-on-path" "ingress-nginx") }}
+    targetRevision: {{ $addon.targetRevision | default "HEAD" }}
+    helm:
+      values: |
+        {{- $addon.values | default dict | toYaml | nindent 8 }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

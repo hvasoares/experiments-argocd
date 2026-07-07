@@ -35,8 +35,12 @@ One entry per child app-of-apps chart, keyed under `.Values.apps`.
 | `targetRevision` | string | Git ref to sync from (e.g. `HEAD` or a branch name). |
 | `values` | map (optional) | App-specific value overrides merged on top of Cluster Context Values before being passed to the child. |
 
-**Validation rules**: `enabled` MUST default to `false` so a new entry never
-auto-deploys until explicitly turned on (FR-001 correctness); `path` MUST
+**Validation rules**: `enabled` defaults to `true` for the two apps registered
+in this experiment (`platform-addons`, `team-addons`) — both must render by
+default for the parent chart's own acceptance scenario (spec User Story 1:
+"renders one Application per apps entry") and the quickstart flow to hold;
+a *new* entry added later, for an app not yet ready to deploy, SHOULD instead
+be added with `enabled: false` until turned on. `path` MUST
 point at a directory that exists in this same repo, per the Assumptions'
 single-repo constraint.
 

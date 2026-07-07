@@ -1,0 +1,19 @@
+# Environment overlay: loaded by the `chart.mergedValues` helper
+# (chart/templates/_helpers.tpl) whenever the caller sets
+# `.Values.environment: local` (e.g. bootstrap/root-application.yaml, or
+# `helm template chart --set environment=local`).
+#
+# Merge precedence (base -> env -> cluster, see chart.mergedValues):
+#   1. chart/values.yaml            (base, lowest precedence)
+#   2. values-<environment>.yaml    (this file)
+#   3. values-<clusterName>.yaml    (cluster overlay, highest precedence)
+#
+# Fields are the Cluster Context Values contract - see
+# specs/001-app-of-apps-experiment/data-model.md "Cluster Context Values"
+# and contracts/parent-to-child-values.md for how they propagate into each
+# child Application's spec.source.helm.valuesObject.
+clusterName: kind-argocd-playground
+account: "000000000000"
+region: local
+dns: example.com
+environment: local

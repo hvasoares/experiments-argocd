@@ -1,0 +1,10 @@
+apiVersion: v2
+name: postgresql
+description: Wrapper chart pinning bitnami/postgresql for the team-owned add-ons tier (isolated from platform-addons' instance)
+type: application
+version: 0.1.0
+appVersion: "18.4.0"
+dependencies:
+  - name: postgresql
+    version: "18.7.12"
+    repository: "https://charts.bitnami.com/bitnami"
