@@ -12,9 +12,10 @@ customAddons:
       # validation rules; FR-005/FR-006 isolation) — matches
       # default-add-ons/postgresql/values.yaml's own "team" namespace.
       namespace: team
-      # Path to the wrapper chart under default-add-ons/ (mirrors the
-      # team-addons.add-on-path helper's convention: default-add-ons/<addon>).
-      chartPath: default-add-ons/postgresql
+      # Repo-relative path to the wrapper chart (mirrors the
+      # team-addons.add-on-path helper's convention:
+      # team-addons/default-add-ons/<addon>).
+      chartPath: team-addons/default-add-ons/postgresql
       # Inline overrides layered on top of default-add-ons/postgresql's own
       # values.yaml (which already sets metrics.enabled: true for the team
       # tier); none needed here for the team default configuration.
@@ -25,8 +26,8 @@ customAddons:
       # Target namespace for the Outline knowledge base. Same tenant
       # namespace as postgresql-team so Outline can reach it in-cluster.
       namespace: team
-      # Path to the wrapper chart under default-add-ons/.
-      chartPath: default-add-ons/outline
+      # Repo-relative path to the wrapper chart.
+      chartPath: team-addons/default-add-ons/outline
       # Inline overrides layered on top of default-add-ons/outline's own
       # values.yaml (ingress host, externalPostgresql.*, redis.*); none
       # needed here for the team default configuration. MUST NOT repoint

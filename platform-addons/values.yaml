@@ -9,9 +9,9 @@ customAddons:
       enable: true
       # Target namespace for the ingress-nginx controller Deployment/Service.
       namespace: ingress-nginx
-      # Path to the wrapper chart under default-add-ons/ (mirrors the
-      # add-on-path helper's convention: default-add-ons/<addon>).
-      chartPath: default-add-ons/ingress-nginx
+      # Repo-relative path to the wrapper chart (mirrors the add-on-path
+      # helper's convention: platform-addons/default-add-ons/<addon>).
+      chartPath: platform-addons/default-add-ons/ingress-nginx
       # Inline overrides layered on top of default-add-ons/ingress-nginx's
       # own values.yaml at the leaf Application level; none needed for the
       # platform default configuration.
@@ -23,8 +23,8 @@ customAddons:
       # from the team tier's namespace (data-model.md § Add-on Toggle
       # validation rules; FR-005/FR-006 isolation).
       namespace: platform
-      # Path to the wrapper chart under default-add-ons/.
-      chartPath: default-add-ons/postgresql
+      # Repo-relative path to the wrapper chart.
+      chartPath: platform-addons/default-add-ons/postgresql
       # Inline overrides layered on top of default-add-ons/postgresql's own
       # values.yaml (which already sets metrics.enabled: false for the
       # platform tier); none needed here for the platform default
