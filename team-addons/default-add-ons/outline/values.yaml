@@ -8,6 +8,15 @@
 namespace: team
 
 outline:
+  # Explicit canonical URL, matching exactly what clients actually connect
+  # through (scheme + host + port). Left unset, the chart auto-derives this
+  # from the first ingress host with an assumed http:// scheme and no port -
+  # since local access here goes through `kubectl port-forward` on a
+  # non-standard port (see quickstart.md), Outline's origin/CORS checks on
+  # its API and websocket calls reject anything that doesn't match this
+  # value exactly, causing the SPA's "Loading Failed" screen.
+  url: https://outline.local.example.com:8443
+
   # Ingress host template: `outline.<clusterName>.<dns>` per data-model.md
   # § Cluster Context Values. This static default lets the chart
   # lint/template standalone (Constitution Principle II); the real
