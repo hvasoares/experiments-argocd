@@ -21,11 +21,19 @@ customAddons:
       # Tenant-identity fields that legitimately differ from platform's
       # Postgres (never the "one override" - see
       # team-addons/overlays/postgresql/values.yaml) and so are supplied
-      # here as inline Application-level values instead:
+      # here as inline Application-level values instead. MUST nest under
+      # `postgresql:` - the reused chart (platform-addons/default-add-ons/
+      # postgresql) declares bitnami/postgresql as a subchart named
+      # "postgresql", so an un-nested `auth:` key here lands nowhere and
+      # silently falls back to platform's own auth.database/postgresPassword
+      # defaults instead (the bug that caused the very confusing
+      # "database \"outline\" does not exist" / password-mismatch failures
+      # during this feature's rollout).
       values:
-        auth:
-          database: outline
-          postgresPassword: outline-team-local-playground-pw
+        postgresql:
+          auth:
+            database: outline
+            postgresPassword: outline-team-local-playground-pw
     outline:
       # Whether the leaf Application renders (templates/addons/outline.yaml).
       enable: true
