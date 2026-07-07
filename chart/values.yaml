@@ -4,16 +4,15 @@
 apps:
   platform-addons:
     enabled: true
-    # Placeholder: this experiment runs entirely out of one local repo, so
-    # every child chart is a sibling path in the same Git remote. Replace
-    # with the real Git URL (e.g. git@github.com:<org>/<repo>.git) before
-    # pointing Argo CD at a non-local remote.
-    repoURL: https://example.com/local-single-repo-placeholder.git
+    # This experiment runs entirely out of one repo (monorepo), so every
+    # child chart is a sibling path in the same Git remote. Public HTTPS
+    # URL - no credentials needed for Argo CD's repo-server to clone it.
+    repoURL: https://github.com/hvasoares/experiments-argocd.git
     path: platform-addons
     targetRevision: HEAD
   team-addons:
     enabled: true
-    # Placeholder: same single-repo caveat as platform-addons above.
-    repoURL: https://example.com/local-single-repo-placeholder.git
+    # Same single-repo, public-HTTPS setup as platform-addons above.
+    repoURL: https://github.com/hvasoares/experiments-argocd.git
     path: team-addons
     targetRevision: HEAD

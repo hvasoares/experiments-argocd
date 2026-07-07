@@ -6,10 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    # Same single-repo placeholder as chart/values.yaml's `apps` registry
-    # (see data-model.md § Registered App) - replace with the real Git
-    # remote URL before pointing Argo CD at a non-local repo.
-    repoURL: https://example.com/local-single-repo-placeholder.git
+    # Same monorepo/public-HTTPS setup as chart/values.yaml's `apps`
+    # registry (see data-model.md § Registered App).
+    repoURL: https://github.com/hvasoares/experiments-argocd.git
     path: chart
     targetRevision: HEAD
     helm:
