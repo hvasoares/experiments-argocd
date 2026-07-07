@@ -65,3 +65,12 @@ outline:
     master:
       persistence:
         enabled: false
+    # Pinned for the same reason as the Postgres wrappers'
+    # auth.postgresPassword (see their values.yaml comments): the bundled
+    # redis subchart generates a fresh random password on every render
+    # when unset, and Argo CD's automated sync policy re-renders and
+    # re-applies on its own periodic reconcile timer (not just on new
+    # commits) - silently rewriting the live Secret and breaking the
+    # already-connected pod with WRONGPASS. Playground-only fixed value.
+    auth:
+      password: outline-team-local-playground-redis-pw
