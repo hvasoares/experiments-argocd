@@ -6,5 +6,10 @@
 namespace: team
 
 postgresql:
+  # Must match default-add-ons/outline/values.yaml's externalPostgresql.database
+  # (Outline connects to this database name specifically, per the isolation
+  # contract - the bitnami chart does not create it unless named here).
+  auth:
+    database: outline
   metrics:
     enabled: true
