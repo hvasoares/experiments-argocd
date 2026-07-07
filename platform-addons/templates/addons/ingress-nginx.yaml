@@ -21,10 +21,10 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ $addon.namespace }}
   source:
-    # Single-repo experiment (spec Assumptions): mirrors the placeholder
-    # used in chart/values.yaml's apps.*.repoURL. Optional per-addon
-    # override left available via customAddons.platform.ingressNginx.repoURL.
-    repoURL: {{ $addon.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    # Single-repo experiment (spec Assumptions): mirrors chart/values.yaml's
+    # apps.*.repoURL. Optional per-addon override available via
+    # customAddons.platform.ingressNginx.repoURL.
+    repoURL: {{ $addon.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
     path: {{ $addon.chartPath | default (include "add-on-path" "ingress-nginx") }}
     targetRevision: {{ $addon.targetRevision | default "HEAD" }}
     helm:

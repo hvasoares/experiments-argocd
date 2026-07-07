@@ -38,7 +38,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ $outline.namespace | default "team" }}
   source:
-    repoURL: {{ .Values.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    repoURL: {{ .Values.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
     path: {{ $outline.chartPath | default (include "team-addons.add-on-path" (dict "root" $ "name" "outline")) }}
     targetRevision: {{ $outline.targetRevision | default "HEAD" }}
     helm:

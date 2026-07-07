@@ -31,7 +31,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ $pg.namespace | default "platform" }}
   source:
-    repoURL: {{ .Values.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    repoURL: {{ .Values.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
     path: {{ $pg.chartPath | default (include "add-on-path" "postgresql") }}
     targetRevision: {{ $pg.targetRevision | default "HEAD" }}
     helm:

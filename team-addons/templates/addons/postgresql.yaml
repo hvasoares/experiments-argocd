@@ -33,7 +33,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ $pg.namespace | default "team" }}
   source:
-    repoURL: {{ $pg.repoURL | default "https://example.com/local-single-repo-placeholder.git" }}
+    repoURL: {{ $pg.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
     path: {{ $pg.chartPath | default (include "team-addons.add-on-path" (dict "root" $ "name" "postgresql")) }}
     targetRevision: {{ $pg.targetRevision | default "HEAD" }}
     helm:
