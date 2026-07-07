@@ -4,8 +4,16 @@
 # customAddons.platform.postgresql.values (see contracts/child-to-leaf-application.md)
 # are deep-merged on top of these at the leaf Application level.
 postgresql:
+  # postgresPassword/password are pinned (not left unset) because the
+  # bitnami chart generates a fresh random password on every `helm
+  # template` render otherwise. Argo CD re-renders on every synced commit,
+  # which would rewrite the live Secret each time while the
+  # already-initialized data volume keeps the OLD password - breaking
+  # every client. Playground-only fixed values, not real credentials.
   auth:
     username: platform
+    password: platform-local-playground-pw
+    postgresPassword: platform-local-playground-pw
     database: platform
     existingSecret: ""
   architecture: standalone
