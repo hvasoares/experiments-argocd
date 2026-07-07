@@ -121,6 +121,18 @@ contracts/child-to-leaf-application.md § Variant producer for the full
 contract. T023/T028 remain marked done — their outcome (a working,
 isolated team Postgres) still holds, just via a different mechanism.
 
+**Rollout notes**: two real bugs surfaced getting this live, both fixed and
+re-verified on the running cluster: (1) the bundled Redis subchart inside
+`default-add-ons/outline` also generated a fresh random password on every
+render (same class of issue as the Postgres wrappers) — pinned it; (2) the
+actual root cause of the confusing "database \"outline\" does not exist" /
+password-mismatch failures during rollout was `customAddons.team.postgresql.values`
+setting `auth.*` at the top level instead of nested under `postgresql:` (the
+subchart name) — Helm silently ignored it and platform's own
+`auth.database`/`postgresPassword` defaults leaked through instead. Fixed
+and confirmed: `postgresql-team`/`outline` both `Synced`/`Healthy`, Outline's
+migrations completed, `PGHOST` resolves to `postgresql-team.team.svc.cluster.local`.
+
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns (Integration)
