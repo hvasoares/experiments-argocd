@@ -97,18 +97,22 @@ platform-addons/                  # child app-of-apps chart (platform-owned)
         ├── Chart.yaml            # dependency: bitnami/postgresql, pinned version
         └── values.yaml           # platform defaults (e.g. metrics.enabled: false)
 
-team-addons/                      # child app-of-apps chart (team-owned), mirrors platform-addons shape
+team-addons/                      # child app-of-apps chart (team-owned)
 ├── Chart.yaml
 ├── values.yaml
 ├── templates/
 │   ├── _helpers.tpl
 │   └── addons/
-│       ├── postgresql.yaml       # leaf Application → postgresql-team
+│       ├── postgresql.yaml       # leaf Application → postgresql-team; NO default-add-ons/postgresql
+│       │                         #   of its own - reuses platform-addons/default-add-ons/postgresql
+│       │                         #   directly via Argo CD multi-source (contracts/child-to-leaf-
+│       │                         #   application.md § Variant producer)
 │       └── outline.yaml          # leaf Application → outline, DATABASE_URL → postgresql-team Service
+├── overlays/
+│   └── postgresql/
+│       └── values.yaml           # the ONE override team-postgres makes on platform's values
+│                                 #   (metrics.enabled: true); layered in via Argo CD $values ref
 └── default-add-ons/
-    ├── postgresql/
-    │   ├── Chart.yaml            # same bitnami/postgresql version pin as platform
-    │   └── values.yaml           # team overlay (e.g. metrics.enabled: true), distinct namespace/secret
     └── outline/
         ├── Chart.yaml            # dependency: Outline community chart, pinned version
         └── values.yaml           # Ingress host, DATABASE_URL template

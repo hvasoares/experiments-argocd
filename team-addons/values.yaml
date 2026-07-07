@@ -9,17 +9,23 @@ customAddons:
       enable: true
       # Target namespace for the team Postgres instance. MUST differ from
       # the platform tier's namespace (data-model.md § Add-on Toggle
-      # validation rules; FR-005/FR-006 isolation) — matches
-      # default-add-ons/postgresql/values.yaml's own "team" namespace.
+      # validation rules; FR-005/FR-006 isolation).
       namespace: team
-      # Repo-relative path to the wrapper chart (mirrors the
-      # team-addons.add-on-path helper's convention:
-      # team-addons/default-add-ons/<addon>).
-      chartPath: team-addons/default-add-ons/postgresql
-      # Inline overrides layered on top of default-add-ons/postgresql's own
-      # values.yaml (which already sets metrics.enabled: true for the team
-      # tier); none needed here for the team default configuration.
-      values: {}
+      # Reused directly from platform-addons - see templates/addons/postgresql.yaml's
+      # header comment for the Argo CD multi-source ("platform as a lib")
+      # pattern this drives. basePath/overridesPath override the template's
+      # own defaults only if you need to point at something else.
+      # basePath: platform-addons/default-add-ons/postgresql
+      # overridesPath: team-addons/overlays/postgresql/values.yaml
+      #
+      # Tenant-identity fields that legitimately differ from platform's
+      # Postgres (never the "one override" - see
+      # team-addons/overlays/postgresql/values.yaml) and so are supplied
+      # here as inline Application-level values instead:
+      values:
+        auth:
+          database: outline
+          postgresPassword: outline-team-local-playground-pw
     outline:
       # Whether the leaf Application renders (templates/addons/outline.yaml).
       enable: true

@@ -106,6 +106,21 @@ description: "Task list template for feature implementation"
 
 **Checkpoint**: All three user stories are independently functional at the chart-authoring level (no live cluster required for any of them).
 
+**Post-implementation architecture change (2026-07-07)**: T023's own
+`team-addons/default-add-ons/postgresql` wrapper chart was removed and
+replaced with an Argo CD multi-source ("platform as a library") setup, per
+explicit user request to minimize drift between the platform and team
+Postgres configs down to exactly one overridden value
+(`postgresql.metrics.enabled`). `team-addons/templates/addons/postgresql.yaml`
+(T025) now sources `platform-addons/default-add-ons/postgresql` directly
+plus a new `team-addons/overlays/postgresql/values.yaml` (the one override)
+and inline `customAddons.team.postgresql.values` (tenant-identity fields:
+`auth.database`, `auth.postgresPassword` — kept separate from the overlay
+so its "one override" claim stays literally true). See
+contracts/child-to-leaf-application.md § Variant producer for the full
+contract. T023/T028 remain marked done — their outcome (a working,
+isolated team Postgres) still holds, just via a different mechanism.
+
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns (Integration)

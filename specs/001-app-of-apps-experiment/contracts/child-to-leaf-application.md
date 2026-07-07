@@ -45,3 +45,45 @@ credential/secret-name field, and MUST NOT reference each other's Service
 name. `team-addons`' `outline` leaf Application's database connection value
 MUST resolve to `postgresql-team.<team-namespace>.svc.cluster.local`, never
 the platform equivalent (spec FR-005, Edge Cases).
+
+## Variant producer: reuse-as-a-library via Argo CD multi-source
+
+`postgresql-team` (`team-addons/templates/addons/postgresql.yaml`) does NOT
+follow the single-`source` shape above — it has no `default-add-ons/postgresql`
+wrapper chart of its own. Instead it reuses
+`platform-addons/default-add-ons/postgresql` directly as its chart, via Argo
+CD's multi-source (`spec.sources`, plural) feature, to minimize drift between
+the two tiers to exactly one deliberate value:
+
+```yaml
+spec:
+  sources:
+    - repoURL: <this repo>
+      path: platform-addons/default-add-ons/postgresql   # platform's chart, reused
+      helm:
+        valueFiles:
+          - $values/team-addons/overlays/postgresql/values.yaml  # the one override
+        values: <customAddons.team.postgresql.values>             # tenant-identity fields
+    - repoURL: <this repo>
+      ref: values   # no chart rendered; just lends its tree for the $values alias above
+```
+
+This makes three things explicit and separately reviewable:
+
+1. **Shared base** — platform's chart directory, `Chart.yaml` (dependency pin),
+   and `values.yaml` are the single source of truth; team's Application never
+   copies them.
+2. **The one demonstrated override** — `team-addons/overlays/postgresql/values.yaml`
+   contains exactly one key (`postgresql.metrics.enabled: true`) and nothing
+   else, so "what team changed vs. platform" is a one-line diff, not a
+   re-read of a whole duplicated values file.
+3. **Tenant-identity fields** (`auth.database`, `auth.postgresPassword`) are
+   necessarily different per tenant regardless of any drift-minimization
+   goal (Outline requires its own database/credentials) — these ride the
+   pre-existing `customAddons.team.postgresql.values` inline-override
+   mechanism instead of the overlay file, so the overlay file's "one
+   override" claim stays literally true.
+
+Any future addon that wants this same "reuse platform's chart, override N
+values" shape should follow the same three-part split rather than growing
+the overlay file into a second copy of platform's values.

@@ -1,10 +1,17 @@
 {{/*
 postgresql.yaml
 ----------------
-Leaf Argo CD Application for the team-tier PostgreSQL instance, sourced
-from the default-add-ons/postgresql wrapper chart (T023), which pins the
-same bitnami/postgresql dependency version as the platform tier but keeps
-its own "team" namespace and overlay (metrics.enabled: true).
+Leaf Argo CD Application for the team-tier PostgreSQL instance. Unlike
+every other leaf Application in this repo, this one does NOT wrap its own
+default-add-ons/postgresql chart - it reuses
+platform-addons/default-add-ons/postgresql directly as a library, via Argo
+CD's multi-source feature (spec.sources, plural), so the upstream chart
+pin, architecture, persistence size, and every other platform-tier
+personalization stay in exactly one place. team-addons/overlays/postgresql/
+values.yaml layers the one deliberate override (metrics.enabled: true) on
+top - see that file's header comment for why tenant-identity fields
+(auth.database, auth.postgresPassword) are NOT there and instead flow
+through customAddons.team.postgresql.values below.
 
 Gated by .Values.customAddons.team.postgresql.enable (data-model.md
 § Add-on Toggle) so this Application only renders when explicitly turned
@@ -12,16 +19,10 @@ on. `default dict` guards every lookup so this chart still
 `helm lint`/`helm template`s standalone before values.yaml's
 customAddons.team.postgresql block has been populated (T027), per
 Constitution Principle II.
-
-Fields follow contracts/child-to-leaf-application.md § Producer exactly:
-metadata.name, spec.destination.namespace, spec.source.path, and
-spec.source.helm.values are all sourced from the toggle entry, falling
-back to the team-addons.add-on-path helper (T009) for the wrapper chart
-path and to the "team" namespace called out in this task when no override
-is set.
 */}}
 {{- $pg := .Values.customAddons.team.postgresql | default dict }}
 {{- if $pg.enable }}
+{{- $repoURL := $pg.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -32,13 +33,23 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ $pg.namespace | default "team" }}
-  source:
-    repoURL: {{ $pg.repoURL | default "https://github.com/hvasoares/experiments-argocd.git" }}
-    path: {{ $pg.chartPath | default (include "team-addons.add-on-path" (dict "root" $ "name" "postgresql")) }}
-    targetRevision: {{ $pg.targetRevision | default "HEAD" }}
-    helm:
-      values: |-
-        {{- toYaml ($pg.values | default dict) | nindent 8 }}
+  sources:
+    # Source 1: the actual chart to render - platform's own wrapper chart,
+    # reused as-is (no team-owned Chart.yaml/dependency pin exists).
+    - repoURL: {{ $repoURL }}
+      path: {{ $pg.basePath | default "platform-addons/default-add-ons/postgresql" }}
+      targetRevision: {{ $pg.targetRevision | default "HEAD" }}
+      helm:
+        valueFiles:
+          - $values/{{ $pg.overridesPath | default "team-addons/overlays/postgresql/values.yaml" }}
+        values: |-
+          {{- toYaml ($pg.values | default dict) | nindent 10 }}
+    # Source 2: no chart rendered from this one - it only lends its repo
+    # tree so source 1's valueFiles can reference a file living outside
+    # platform-addons/default-add-ons/postgresql (the $values alias above).
+    - repoURL: {{ $repoURL }}
+      targetRevision: {{ $pg.targetRevision | default "HEAD" }}
+      ref: values
   syncPolicy:
     automated: {}
     syncOptions:

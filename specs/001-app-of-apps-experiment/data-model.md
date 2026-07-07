@@ -78,10 +78,14 @@ Declared in each `default-add-ons/*/Chart.yaml`.
 | `version` | string | Explicit pinned semver — no ranges (Constitution Principle IV). |
 | `repository` | string | Upstream Helm repo URL (e.g. `https://charts.bitnami.com/bitnami`). |
 
-**Relationships**: Platform and team `postgresql` wrapper charts both
-reference the **same** `name`/`version`/`repository` (spec item: "team wrapper
-pins same bitnami/postgresql chart version as platform"), differing only in
-their own `values.yaml` overlay — not in the dependency pin itself.
+**Relationships**: `platform-addons/default-add-ons/postgresql` is the only
+chart that actually declares this dependency for Postgres. The team tier
+reuses that exact chart via Argo CD multi-source (see
+contracts/child-to-leaf-application.md § Variant producer) rather than
+declaring a second `default-add-ons/postgresql` with its own
+`name`/`version`/`repository` — "team wrapper pins same bitnami/postgresql
+chart version as platform" is now trivially true by construction (there is
+only one pin to drift from), instead of two pins kept manually in sync.
 
 ## State / Lifecycle (Argo CD Application health)
 

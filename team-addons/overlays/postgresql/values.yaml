@@ -1,0 +1,20 @@
+# The ONE deliberate override team-postgres makes on top of
+# platform-addons/default-add-ons/postgresql's own values.yaml, reused
+# directly (not duplicated) via the leaf Application's spec.sources in
+# team-addons/templates/addons/postgresql.yaml - Argo CD renders
+# platform's chart *and* layers this file on top, standard Helm
+# multi-values-file semantics (later file wins).
+#
+# Everything else about this Postgres instance - upstream chart/version
+# pin, architecture, persistence size, resources - is inherited unchanged
+# from the platform tier; this is the only drift.
+#
+# Tenant-identity fields that also legitimately differ (auth.database,
+# auth.postgresPassword) are NOT here - those are supplied as inline
+# Application-level overrides via customAddons.team.postgresql.values in
+# team-addons/values.yaml (contracts/child-to-leaf-application.md), kept
+# separate from this file so this override stays exactly what it claims
+# to be: one value, not a second hidden diff.
+postgresql:
+  metrics:
+    enabled: true
