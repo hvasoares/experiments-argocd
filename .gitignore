@@ -1,0 +1,10 @@
+# Claude Code local settings (per-user, not shared)
+.claude/settings.local.json
+
+# Helm
+charts/
+**/charts/*.tgz
+Chart.lock
+
+# OS
+.DS_Store
